@@ -13,6 +13,12 @@ resource "aws_ecs_task_definition" "service_task_def" {
     {
       name      = local.toto_microservice_name
       image     = format("%s.dkr.ecr.eu-west-1.amazonaws.com/%s:%s", var.aws_account_id, local.toto_microservice_name, var.container_image_tag)
+      environment = [
+        {
+          name = "ENVIRONMENT", 
+          value = var.toto_environment
+        }
+      ]
       cpu       = 1024
       memory    = 2048
       essential = true
