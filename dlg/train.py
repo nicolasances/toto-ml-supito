@@ -1,6 +1,8 @@
 import pandas as pd
 import os
+import boto3
 import joblib
+import io
 
 from flask import Request
 from config.config import Config
@@ -54,10 +56,24 @@ def train_model(request: Request, user_context: UserContext, exec_context: Execu
     model = MLPClassifier(alpha=1.0, hidden_layer_sizes=(20,20))
     
     model.fit(X, y)
-    
-    # 4. Save the model
-    joblib.dump(model, 'supito.joblib')
 
     logger.log(exec_context.cid, f"Model trained successfully")
     
-    return {"ok": True}
+    # 4. Save the model
+    s3_client = boto3.client('s3')
+
+    model_file = io.BytesIO()
+
+    joblib.dump(model, model_file)
+    model_file.seek(0)
+
+    bucket_name = f"toto-{os.getenv('ENVIRONMENT')}-models.to7o.com"
+    object_name = 'supito.joblib'
+
+    logger.log(exec_context.cid, f"Saving model to bucket {bucket_name}. Object name: {object_name}")
+
+    s3_client.upload_fileobj(model_file, bucket_name, object_name)
+
+    print(f'Model uploaded to s3://{bucket_name}/{object_name}')
+    
+    return {"trained": True, "shapeX": f"{X.shape}", "shapeY": f"{y.shape}"}
