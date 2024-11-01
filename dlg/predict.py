@@ -47,8 +47,8 @@ def predict(request: Request, user_context: UserContext, exec_context: Execution
     item_encoder_file.seek(0)
     items_dict_file.seek(0)
 
-    model = joblib.load('model.joblib')
-    item_encoder = joblib.load('encoder.joblib')
+    model = joblib.load(model_file)
+    item_encoder = joblib.load(item_encoder_file)
     items_dict = joblib.load(items_dict_file)
 
     logger.log(exec_context.cid, f"Loaded supito model from bucket {bucket_name}. Object name: {object_name}")
