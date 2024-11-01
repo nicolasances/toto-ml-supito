@@ -51,7 +51,11 @@ def predict(request: Request, user_context: UserContext, exec_context: Execution
     # 2. Prepare the data for inference
     items_df = pd.DataFrame([items], columns=['item1', 'item2'])
 
-    encoded_items = encode_items(remove_useless_words(lower_case_of_items(items_df)), encoder=item_encoder)['dataset']
+    cleaned_items = remove_useless_words(lower_case_of_items(items_df))
+
+    print(f'Cleaned items: {cleaned_items}')
+
+    encoded_items = encode_items(cleaned_items, encoder=item_encoder)['dataset']
 
     # 3. Inference
     predicted_before = model['model'].predict_proba(encoded_items)[:,1]
