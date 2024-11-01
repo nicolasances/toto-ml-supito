@@ -33,18 +33,23 @@ def predict(request: Request, user_context: UserContext, exec_context: Execution
     bucket_name = f"toto-{os.getenv('ENVIRONMENT')}-models.to7o.com"
     object_name = 'supito.joblib'
     item_encoder_object_name = 'supito-item-encoder.joblib'
+    items_dict_object_name = 'supito-items-dict.joblib'
 
     model_file = io.BytesIO()
     item_encoder_file = io.BytesIO()
+    items_dict_file = io.BytesIO()
 
     s3_client.download_fileobj(bucket_name, object_name, model_file)
     s3_client.download_fileobj(bucket_name, item_encoder_object_name, item_encoder_file)
+    s3_client.download_fileobj(bucket_name, items_dict_object_name, items_dict_file)
 
     model_file.seek(0)
     item_encoder_file.seek(0)
+    items_dict_file.seek(0)
 
-    model = joblib.load(model_file)
-    item_encoder = joblib.load(item_encoder_file)
+    model = joblib.load('model.joblib')
+    item_encoder = joblib.load('encoder.joblib')
+    items_dict = joblib.load(items_dict_file)
 
     logger.log(exec_context.cid, f"Loaded supito model from bucket {bucket_name}. Object name: {object_name}")
 
@@ -53,12 +58,10 @@ def predict(request: Request, user_context: UserContext, exec_context: Execution
 
     cleaned_items = remove_useless_words(lower_case_of_items(items_df))
 
-    print(f'Cleaned items: {cleaned_items}')
-
-    encoded_items = encode_items(cleaned_items, encoder=item_encoder)['dataset']
-
+    encoded_items = encode_items(cleaned_items, encoder=item_encoder, items_dictionnary=items_dict)['dataset']
+    
     # 3. Inference
-    predicted_before = model['model'].predict_proba(encoded_items)[:,1]
+    predicted_before = model.predict_proba(encoded_items)[:,1]
 
     print(f"Probability that '{items[0]}' comes before '{items[1]}': {predicted_before[0]}")
     

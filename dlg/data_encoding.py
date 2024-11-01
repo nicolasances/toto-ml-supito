@@ -4,9 +4,12 @@ from sklearn.preprocessing import OneHotEncoder
 def get_items_dictionnary(df):
     return pd.concat([pd.Series(df['item1']), pd.Series(df['item1'])]).unique()
 
-def encode_items(df, encoder=None):
+def encode_items(df, encoder=None, items_dictionnary=None):
     
-    items_dict = get_items_dictionnary(df)
+    if items_dictionnary is None: 
+        items_dict = get_items_dictionnary(df)
+    else: 
+        items_dict = items_dictionnary
 
     if encoder is None: 
         item_encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
@@ -25,5 +28,6 @@ def encode_items(df, encoder=None):
 
     return {
         "dataset": encoded_df, 
-        "item_encoder": item_encoder
+        "item_encoder": item_encoder, 
+        "item_dictionnary": items_dict
     }
