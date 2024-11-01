@@ -46,6 +46,7 @@ def train_model(request: Request, user_context: UserContext, exec_context: Execu
     )
     
     dataset = preparation_result['dataset']
+    item_encoder = preparation_result['item_encoder']
     
     # 3. Fit the data 
     X = dataset.drop(columns=[target_var]).to_numpy()
@@ -63,17 +64,24 @@ def train_model(request: Request, user_context: UserContext, exec_context: Execu
     s3_client = boto3.client('s3')
 
     model_file = io.BytesIO()
+    item_encoder_file = io.BytesIO()
 
     joblib.dump(model, model_file)
+    joblib.dump(item_encoder, item_encoder_file)
+
     model_file.seek(0)
+    item_encoder_file.seek(0)
 
     bucket_name = f"toto-{os.getenv('ENVIRONMENT')}-models.to7o.com"
     object_name = 'supito.joblib'
+    item_encoder_object_name = 'supito-item-encoder.joblib'
 
     logger.log(exec_context.cid, f"Saving model to bucket {bucket_name}. Object name: {object_name}")
 
     s3_client.upload_fileobj(model_file, bucket_name, object_name)
+    s3_client.upload_fileobj(item_encoder_file, bucket_name, item_encoder_object_name)
 
     print(f'Model uploaded to s3://{bucket_name}/{object_name}')
+    print(f'Item Encoder uploaded to s3://{bucket_name}/{item_encoder_object_name}')
     
     return {"trained": True, "shapeX": f"{X.shape}", "shapeY": f"{y.shape}"}
