@@ -23,7 +23,7 @@ def predict(request: Request, user_context: UserContext, exec_context: Execution
     
     logger = exec_context.logger
 
-    items = request.args.get('items', [])
+    items = request.json['items']
 
     logger.log(exec_context.cid, f'Predicting items order for items {items}')
 
