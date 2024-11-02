@@ -3,8 +3,7 @@ name: Release
 on:
   push:
     branches: 
-      - 'feature/**'
-      - main
+      - 'release/**'
 
 env:
   TF_CLOUD_ORGANIZATION: "Imatz"
@@ -36,7 +35,7 @@ jobs:
   # This workflow contains a single job called "release"
   release:
     name: Build & Deploy to AWS Container Registry
-    environment: dev
+    environment: prod
     runs-on: ubuntu-latest
 
     steps:
