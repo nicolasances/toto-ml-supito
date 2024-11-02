@@ -29,7 +29,6 @@ env:
   TF_VAR_ecs_task_role_arn: "\"${{ secrets.ecs_task_role_arn }}\""
   TF_VAR_ecs_cluster_arn: "\"${{ secrets.ecs_cluster_arn }}\""
   TF_VAR_toto_vpc_id: "\"${{ secrets.toto_vpc_id }}\""
-  PACKAGE_NAME: "toto-ml-supito"
   
 
 jobs:
@@ -58,7 +57,7 @@ jobs:
       id: build-image
       env: 
         ECR_REGISTRY: ${{steps.login-ecr.outputs.registry}}
-        ECR_REPO: ${{env.PACKAGE_NAME}}
+        ECR_REPO: ${{env.ECR_REPO}}
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
