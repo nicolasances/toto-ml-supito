@@ -17,6 +17,8 @@ from dlg.data_filtering import filter_supermarkets
 from dlg.data_preparation import unite_and_balance_training_examples
 from sklearn.neural_network import MLPClassifier
 
+from store.model_store import PersistentSupitoModel
+
 @toto_delegate(config_class=Config)
 def train_model(request: Request, user_context: UserContext, exec_context: ExecutionContext): 
     
@@ -62,33 +64,6 @@ def train_model(request: Request, user_context: UserContext, exec_context: Execu
     logger.log(exec_context.cid, f"Model trained successfully")
     
     # 4. Save the model
-    s3_client = boto3.client('s3')
-
-    model_file = io.BytesIO()
-    item_encoder_file = io.BytesIO()
-    items_dict_file = io.BytesIO()
-
-    joblib.dump(model, model_file)
-    joblib.dump(item_encoder, item_encoder_file)
-    joblib.dump(item_dict, items_dict_file)
-
-    model_file.seek(0)
-    item_encoder_file.seek(0)
-    items_dict_file.seek(0)
-
-    bucket_name = f"toto-{os.getenv('ENVIRONMENT')}-models.to7o.com"
-    object_name = 'supito.joblib'
-    item_encoder_object_name = 'supito-item-encoder.joblib'
-    items_dict_object_name = 'supito-items-dict.joblib'
-
-    logger.log(exec_context.cid, f"Saving model to bucket {bucket_name}. Object name: {object_name}")
-
-    s3_client.upload_fileobj(model_file, bucket_name, object_name)
-    s3_client.upload_fileobj(item_encoder_file, bucket_name, item_encoder_object_name)
-    s3_client.upload_fileobj(items_dict_file, bucket_name, items_dict_object_name)
-
-    print(f'Model uploaded to s3://{bucket_name}/{object_name}')
-    print(f'Item Encoder uploaded to s3://{bucket_name}/{item_encoder_object_name}')
-    print(f'Items Dictionnary uploaded to s3://{bucket_name}/{items_dict_object_name}')
+    PersistentSupitoModel().save(model, item_encoder, item_dict, exec_context)
     
     return {"trained": True, "shapeX": f"{X.shape}", "shapeY": f"{y.shape}"}

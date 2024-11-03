@@ -18,6 +18,8 @@ from dlg.data_preparation import unite_and_balance_training_examples
 from dlg.data_cleaning import lower_case_of_items, remove_useless_words
 from sklearn.neural_network import MLPClassifier
 
+from store.model_store import PersistentSupitoModel
+
 @toto_delegate(config_class=Config)
 def predict(request: Request, user_context: UserContext, exec_context: ExecutionContext): 
     
@@ -28,30 +30,11 @@ def predict(request: Request, user_context: UserContext, exec_context: Execution
     logger.log(exec_context.cid, f'Predicting items order for items {items}')
 
     # 1. Load the model and encoder
-    s3_client = boto3.client('s3')
-    
-    bucket_name = f"toto-{os.getenv('ENVIRONMENT')}-models.to7o.com"
-    object_name = 'supito.joblib'
-    item_encoder_object_name = 'supito-item-encoder.joblib'
-    items_dict_object_name = 'supito-items-dict.joblib'
+    persisted_model = PersistentSupitoModel.load(exec_context)
 
-    model_file = io.BytesIO()
-    item_encoder_file = io.BytesIO()
-    items_dict_file = io.BytesIO()
-
-    s3_client.download_fileobj(bucket_name, object_name, model_file)
-    s3_client.download_fileobj(bucket_name, item_encoder_object_name, item_encoder_file)
-    s3_client.download_fileobj(bucket_name, items_dict_object_name, items_dict_file)
-
-    model_file.seek(0)
-    item_encoder_file.seek(0)
-    items_dict_file.seek(0)
-
-    model = joblib.load(model_file)
-    item_encoder = joblib.load(item_encoder_file)
-    items_dict = joblib.load(items_dict_file)
-
-    logger.log(exec_context.cid, f"Loaded supito model from bucket {bucket_name}. Object name: {object_name}")
+    model = persisted_model.get_model()
+    item_encoder = persisted_model.get_item_encoder()
+    items_dict = persisted_model.get_items_dict()
 
     # 2. Prepare the data for inference
     items_df = pd.DataFrame([items], columns=['item1', 'item2'])
