@@ -1,5 +1,6 @@
 from flask import Flask, request
 from flask_cors import CORS
+from dlg.test import test_gcp_access
 from dlg.train import train_model
 from dlg.predict import predict
 from config.config import Config
@@ -27,6 +28,10 @@ def postTrain():
 @app.route('/predict', methods=['POST'])
 def postPredict(): 
     return predict(request)
+
+@app.route('/testgcp', methods=['GET'])
+def testGCP(): 
+    return test_gcp_access(request)
 
 if __name__ == '__main__':
     app.run()
