@@ -11,6 +11,7 @@ from totoapicontroller.TotoDelegateDecorator import toto_delegate
 from totoapicontroller.model.UserContext import UserContext
 from totoapicontroller.model.ExecutionContext import ExecutionContext
 
+from dlg.data.fetch import TrainingData
 from dlg.data_cleaning import clean_data
 from dlg.data_encoding import encode_items, get_items_dictionnary
 from dlg.data_filtering import filter_supermarkets
@@ -24,11 +25,13 @@ def train_model(request: Request, user_context: UserContext, exec_context: Execu
     
     logger = exec_context.logger
     
-    # 1. Read the training files
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    # 1. Load the training data
+    training_data = TrainingData().load_training_data()
     
-    archived_lists = pd.read_json(os.path.join(BASE_DIR, 'data/20241025-archivedLists.json'))
-    game_examples = pd.read_json(os.path.join(BASE_DIR, 'data/20241025-trainingExamples.json'))
+    archived_lists = training_data['archived_lists']
+    game_examples = training_data['user_examples']
+    
+    logger.log(exec_context.cid, f'Loaded Training Data from GCP. Archived Lists has shape {archived_lists.shape} and Game Examples has shape {game_examples.shape}')
     
     id_var = '_id'
     target_var = 'before'
