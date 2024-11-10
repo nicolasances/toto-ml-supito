@@ -86,3 +86,13 @@ variable "container_image_tag" {
   description = "Tag of the Image that needs to be deployed"
   type = string
 }
+
+########################################################
+# 5. Google Service Account Key (json file content) 
+#    to allow for AWS to access GCP
+########################################################
+variable "gcp_service_account_key" {
+  description = "Google Service Account Key to allow for AWS to access GCP"
+  type = string
+  sensitive = true
+}

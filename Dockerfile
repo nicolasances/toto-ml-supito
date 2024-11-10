@@ -4,10 +4,6 @@ FROM python:3.9-slim
 # Set the working directory inside the container
 WORKDIR /app
 
-# Build argument for Google Application Credentials
-ARG GOOGLE_CREDENTIALS_FILE
-ENV GOOGLE_APPLICATION_CREDENTIALS="/app/gcp_credentials.json"
-
 # Copy the requirements file into the container
 COPY requirements.txt .
 
@@ -17,9 +13,6 @@ RUN pip install gunicorn
 
 # Copy the application code into the container
 COPY . .
-
-# Copy Google credentials file into the container
-COPY ${GOOGLE_CREDENTIALS_FILE} ${GOOGLE_APPLICATION_CREDENTIALS}
 
 # Expose the port that Gunicorn will listen on
 EXPOSE 8080

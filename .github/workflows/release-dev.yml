@@ -43,10 +43,6 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-    # Creates a google app credentials files from the secret
-    - name: Create GCP App Credentials file
-      run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > 'gcp_credentials.json'
-
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with: 
@@ -64,7 +60,7 @@ jobs:
         ECR_REGISTRY: ${{steps.login-ecr.outputs.registry}}
         ECR_REPO: ${{env.SERVICE_NAME}}
       run: |
-        docker build --build-arg GOOGLE_CREDENTIALS_FILE=gcp_credentials.json -t $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG .
+        docker build -t $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG" >> $GITHUB_OUTPUT
 

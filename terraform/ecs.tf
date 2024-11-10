@@ -17,6 +17,24 @@ resource "aws_ecs_task_definition" "service_task_def" {
         {
           name = "ENVIRONMENT", 
           value = var.toto_environment
+        }, 
+        {
+          name = "GOOGLE_APPLICATION_CREDENTIALS", 
+          value = "/secrets/gcp_cred.json"
+        }, 
+        {
+          name  = "GCP_SERVICE_ACCOUNT_KEY",
+          value = var.gcp_service_account_key
+        }
+      ]
+      entryPoint = [
+        "sh", "-c", "echo \"$GCP_SERVICE_ACCOUNT_KEY\" | base64 -d > /secrets/gcp_cred.json && exec gunicorn --bind 0.0.0.0:8080 app:app --enable-stdio-inheritance --timeout 3600 --workers=2"
+      ]
+      mountPoints = [
+        {
+          sourceVolume = "gcp_credentials_volume"
+          containerPath = "/secrets"
+          readOnly = false
         }
       ]
       cpu       = 1024
