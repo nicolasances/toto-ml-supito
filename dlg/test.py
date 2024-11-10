@@ -4,6 +4,7 @@ from totoapicontroller.TotoDelegateDecorator import toto_delegate
 from totoapicontroller.model.UserContext import UserContext
 from totoapicontroller.model.ExecutionContext import ExecutionContext
 from config.config import Config
+from dlg.data.fetch import TrainingData
 from store.model_store import PersistentSupitoModel
 
 @toto_delegate(config_class=Config)
@@ -12,16 +13,11 @@ def test_gcp_access(request: Request, user_context: UserContext, exec_context: E
     logger = exec_context.logger
     cid = exec_context.cid
     
-    logger.log(cid, 'Testing access to GCP')
+    logger.log(cid, 'Testing loading of training data')
     
-    client = storage.Client()
+    training_data = TrainingData().load_training_data()
     
-    bucket = client.get_bucket('totoexperiments-supermarket-backup-bucket')
-    
-    blobs = []
-    for obj in bucket.list_blobs(): 
-        blobs.append(obj.name)
-        
     return {
-        "blobs": blobs
+        "archived_list_shape": training_data['archived_lists'].shape, 
+        "user_examples_shape": training_data['user_examples'].shape
     }
