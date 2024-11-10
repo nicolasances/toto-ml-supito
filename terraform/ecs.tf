@@ -59,6 +59,10 @@ resource "aws_ecs_task_definition" "service_task_def" {
       }
     }
   ])
+
+  volume {
+    name = "gcp_credentials_volume"
+  }
 }
 
 ########################################################
