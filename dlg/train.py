@@ -26,7 +26,7 @@ def train_model(request: Request, user_context: UserContext, exec_context: Execu
     logger = exec_context.logger
     
     # 1. Load the training data
-    training_data = TrainingData().load_training_data()
+    training_data = TrainingData(exec_context).load_training_data()
     
     archived_lists = training_data['archived_lists']
     game_examples = training_data['user_examples']
