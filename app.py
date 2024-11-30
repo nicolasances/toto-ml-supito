@@ -1,5 +1,6 @@
 from flask import Flask, request
 from flask_cors import CORS
+from dlg.nesu.train import train_nesu
 from dlg.test import test_gcp_access
 from dlg.train import train_model
 from dlg.predict import predict
@@ -32,6 +33,10 @@ def postPredict():
 @app.route('/testgcp', methods=['GET'])
 def testGCP(): 
     return test_gcp_access(request)
+
+@app.route('/models/nesu/train', methods=['POST'])
+def postNesuTrain(): 
+    return train_nesu(request)
 
 if __name__ == '__main__':
     app.run()
