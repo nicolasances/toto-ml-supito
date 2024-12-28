@@ -39,6 +39,14 @@ class NesuDataPreparation:
             'trained_scalers': scaling_result['trained_scalers']
         }
         
+        
+    def prepare_data_for_inference(self, previous_expenses): 
+        """Prepares the data for the inference
+
+        Args:
+            previous_expenses (dict): JSON received from the Expenses API, already loaded as a dict
+        """
+        df = pd.DataFrame(previous_expenses['expenses'])
     
     def __clean_data(self, df):
         """Cleans the data as a first step of the preparation process"""

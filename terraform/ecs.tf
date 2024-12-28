@@ -2,7 +2,7 @@
 # 1. Task Definition
 ########################################################
 resource "aws_ecs_task_definition" "service_task_def" {
-  family = local.toto_microservice_name
+  family = format("%s-%s", local.toto_microservice_name, var.toto_environment)
   requires_compatibilities = ["FARGATE"]
   execution_role_arn = var.ecs_execution_role_arn
   task_role_arn = var.ecs_task_role_arn
